@@ -100,3 +100,33 @@ When you push your code, only these lightweight files will be uploaded (approx 2
 
 **3. The Experience for the Other Person:**
 They download these tiny scripts → Run `install_local.ps1` → The script recreates the huge 3GB environment on **their** computer automatically. That is the magic of this architecture.
+
+just run these if nothing works:
+```bash
+# 1. Download
+git https://github.com/AshwinAshok3/student_attendance_system.git
+cd student_attendance_system-AI
+
+# 2. Install (Wait for "SETUP COMPLETE")
+powershell -ExecutionPolicy Bypass -File .\install_local.ps1
+
+# 3. Run (After adding photos to data/students)
+.\start_app.bat
+```
+
+
+### Imp : 
+1. additionally I've provided my initial files system which are:
+    * `create_files.ps1`
+    * `update_system.ps1`
+2. these files will **OVERWRITE** everything if you run them 
+3. commands to run them :
+    * Firstly :
+        ```bash
+        powershell -ExecutionPolicy Bypass -File .\create_files.ps1
+        ```
+    * Secondly :
+        ```bash
+        powershell -ExecutionPolicy Bypass -File .\update_system.ps1
+        ```
+4. Then proceed with `.\start_app.bat`
