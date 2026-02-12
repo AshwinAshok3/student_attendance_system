@@ -1,0 +1,33 @@
+﻿/* Modern Dark Theme */
+.stApp {
+    background-color: #0E1117;
+    color: #FAFAFA;
+}
+div.stButton > button {
+    background-color: #FF4B4B;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    padding: 10px 24px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+div.stButton > button:hover {
+    background-color: #FF0000;
+    transform: scale(1.02);
+}
+.reportview-container .main .block-container {
+    padding-top: 2rem;
+}
+h1 {
+    color: #FF4B4B !important;
+    text-align: center;
+    font-family: 'Helvetica Neue', sans-serif;
+}
+.status-box {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid #333;
+    background: #1E1E1E;
+}

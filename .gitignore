@@ -1,0 +1,24 @@
+﻿# Ignore Portable Python
+python_bin/
+python_zip.zip
+get-pip.py
+
+# Ignore Large AI Models
+ai_models/
+*.onnx
+
+# Ignore Database & Cache
+database/
+__pycache__/
+*.pyc
+
+# Ignore Virtual Env (if any)
+venv/
+env/
+.env
+
+# Ignore Logs
+*.log
+
+# students data
+data/students

@@ -1,0 +1,27 @@
+--extra-index-url https://download.pytorch.org/whl/cu118
+
+# --- GPU INFRASTRUCTURE ---
+torch==2.1.2+cu118
+torchvision==0.16.2+cu118
+torchaudio==2.1.2+cu118
+
+# --- NVIDIA RUNTIME LIBS (FIXED VERSION) ---
+nvidia-cudnn-cu11==8.9.4.25
+nvidia-cublas-cu11==11.10.3.66
+nvidia-cufft-cu11==10.9.0.58
+nvidia-curand-cu11==10.2.10.91
+nvidia-cusolver-cu11==11.4.0.1
+nvidia-cusparse-cu11==11.7.4.91
+nvidia-nccl-cu11==2.14.3; platform_system == "Linux"
+
+# --- AI CORE ---
+onnxruntime-gpu==1.16.3
+insightface==0.7.3
+
+# --- APP DEPENDENCIES ---
+numpy==1.26.4
+pandas==2.2.0
+opencv-python-headless==4.9.0.80
+streamlit==1.31.1
+pillow==10.2.0
+watchdog==4.0.0
