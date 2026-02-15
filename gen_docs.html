@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel AI - System Design Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true });</script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background: #f4f4f4;
+        }
+
+        .container {
+            background: white;
+            padding: 50px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+        }
+
+        h3 {
+            color: #16a085;
+            margin-top: 20px;
+        }
+
+        .diagram-box {
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #fafafa;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        code {
+            background: #eee;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .footer {
+            margin-top: 50px;
+            font-size: 0.9em;
+            color: #777;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h1 style="border:none;">SENTINEL AI</h1>
+            <h3>Offline Facial Recognition Attendance System</h3>
+            <p><strong>System Design Document (v2.0)</strong></p>
+        </div>
+
+        <h1>1. System Overview</h1>
+        <p>Sentinel AI is a local, GPU-accelerated attendance system. It captures video feeds, identifies students using
+            the InsightFace model, and marks attendance based on time-slot logic. The system operates in a completely
+            air-gapped (offline) environment.</p>
+
+        <h1>2. Data Flow Diagrams (DFD)</h1>
+
+        <h2>Level 0: Context Diagram</h2>
+        <p>The system interacts with two main entities: the Student (User) and the Administrator.</p>
+        <div class="diagram-box">
+            <div class="mermaid">
+                graph LR
+                User[Student] -- Face Data --> System((Sentinel AI))
+                System -- Attendance Status --> User
+                Admin[Administrator] -- Registration Data --> System
+                System -- Reports/Logs --> Admin
+            </div>
+        </div>
+
+        <h2>Level 1: System Architecture</h2>
+        <p>Data flow between the four core subsystems.</p>
+        <div class="diagram-box">
+            <div class="mermaid">
+                graph TD
+                Input[Camera Feed] -->|Frames| Video[1.0 Video Processing]
+                Video -->|RGB Image| AI[2.0 AI Recognition]
+
+                AI -->|Embeddings| DB[(Face Vector DB)]
+                AI -->|Result| Logic[3.0 Attendance Logic]
+
+                Logic -->|Log Entry| SQL[(SQLite DB)]
+                Logic -->|Status| GUI[4.0 Dashboard]
+
+                Admin[Admin] -->|New User| Reg[5.0 Registration]
+                Reg -->|Update| DB
+                Reg -->|Save Image| File[(Image Storage)]
+            </div>
+        </div>
+
+        <h2>Level 2: Module Logic</h2>
+
+        <h3>2.1 Attendance Rules Logic</h3>
+        <div class="diagram-box">
+            <div class="mermaid">
+                graph TD
+                Start[Face Recognized] --> Fetch[Check Last Log]
+                Fetch --> Check{Is First Log?}
+                Check -- Yes --> MarkM[Mark Morning]
+                Check -- No --> Time{Diff > 2 Hours?}
+                Time -- Yes --> MarkA[Mark Afternoon]
+                Time -- No --> Reject[Reject: Too Early]
+            </div>
+        </div>
+
+        <h3>2.2 Smart Registration Logic</h3>
+        <div class="diagram-box">
+            <div class="mermaid">
+                graph TD
+                Scan[Scan Frame] --> Count{Count Faces}
+                Count -- 0 --> Err1[Error: No Face]
+                Count -- 1+ --> Classify[Classify Faces]
+                Classify --> Unknowns{Count Unknowns}
+                Unknowns -- 0 --> Err2[Already Registered]
+                Unknowns -- >1 --> Err3[Error: Multiple Unknowns]
+                Unknowns -- 1 --> Save[Save to Database]
+            </div>
+        </div>
+
+        <h1>3. Data Dictionary</h1>
+
+        <h3>D1: Face Database (embeddings.pkl)</h3>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>names</td>
+                <td>List (Str)</td>
+                <td>Stores student names.</td>
+            </tr>
+            <tr>
+                <td>embeddings</td>
+                <td>List (Array)</td>
+                <td>Stores 512-D float vectors.</td>
+            </tr>
+        </table>
+
+        <h3>D2: Attendance Log (attendance.db)</h3>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>name</td>
+                <td>TEXT</td>
+                <td>Name of the student.</td>
+            </tr>
+            <tr>
+                <td>date</td>
+                <td>TEXT</td>
+                <td>YYYY-MM-DD format.</td>
+            </tr>
+            <tr>
+                <td>time</td>
+                <td>TEXT</td>
+                <td>HH:MM:SS format.</td>
+            </tr>
+            <tr>
+                <td>session</td>
+                <td>TEXT</td>
+                <td>'Morning' or 'Afternoon'.</td>
+            </tr>
+        </table>
+
+        <div class="footer">
+            Generated by Sentinel AI Setup Assistant | Date: $(Get-Date -Format "yyyy-MM-dd")
+        </div>
+    </div>
+
+</body>
+
+</html>
